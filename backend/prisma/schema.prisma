@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      =  env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  passwordHash String
+  role         Role      @default(VOTER)
+  verified     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  votes        Vote[]
+  auditLogs    AuditLog[]
+}
+
+model Election {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  isPublished Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+
+  candidates  Candidate[]
+  votes       Vote[]
+}
+
+model Candidate {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  electionId  String
+  election    Election   @relation(fields: [electionId], references: [id])
+
+  votes       Vote[]
+}
+
+model Vote {
+  id          String     @id @default(cuid())
+  userId      String
+  electionId  String
+  candidateId String
+  createdAt   DateTime   @default(now())
+
+  user        User       @relation(fields: [userId], references: [id])
+  election    Election   @relation(fields: [electionId], references: [id])
+  candidate   Candidate  @relation(fields: [candidateId], references: [id])
+
+  @@unique([userId, electionId])
+}
+
+model AuditLog {
+  id        String    @id @default(cuid())
+  userId    String
+  action    String
+  meta      Json?
+  timestamp DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model OTP {
+  id         String    @id @default(cuid())
+  email      String
+  code       String
+  expiresAt  DateTime
+  used       Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+}
+
+enum Role {
+  ADMIN
+  VOTER
+}
