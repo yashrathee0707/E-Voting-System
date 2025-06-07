@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const db = require('../config/database');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 const generateAccessToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -16,13 +17,16 @@ const generateRefreshToken = () => {
 
 const storeRefreshToken = async (userId, refreshToken) => {
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+  expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
 
   try {
-    await db.query(
-      'INSERT INTO refresh_tokens (token, user_id, expires_at) VALUES ($1, $2, $3)',
-      [refreshToken, userId, expiresAt]
-    );
+    await prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        userId,
+        expiresAt
+      }
+    });
   } catch (error) {
     throw new Error('Failed to store refresh token');
   }
@@ -30,26 +34,28 @@ const storeRefreshToken = async (userId, refreshToken) => {
 
 const verifyRefreshToken = async (refreshToken) => {
   try {
-    const result = await db.query(
-      `SELECT rt.*, u.id as user_id, u.email, u.first_name, u.last_name, u.is_active 
-       FROM refresh_tokens rt 
-       JOIN users u ON rt.user_id = u.id 
-       WHERE rt.token = $1 AND rt.expires_at > NOW() AND rt.is_revoked = false`,
-      [refreshToken]
-    );
+    const tokenRecord = await prisma.refreshToken.findFirst({
+      where: {
+        token: refreshToken,
+        expiresAt: {
+          gt: new Date()
+        },
+        isRevoked: false
+      },
+      include: {
+        user: true
+      }
+    });
 
-    if (result.rows.length === 0) {
+    if (!tokenRecord || !tokenRecord.user || !tokenRecord.user.verified) {
+      await revokeRefreshToken(refreshToken); // optional: auto revoke bad tokens
       return null;
     }
 
-    const tokenData = result.rows[0];
-    
-    if (!tokenData.is_active) {
-      await revokeRefreshToken(refreshToken);
-      return null;
-    }
-
-    return tokenData;
+    return {
+      ...tokenRecord,
+      user: tokenRecord.user
+    };
   } catch (error) {
     throw new Error('Failed to verify refresh token');
   }
@@ -57,10 +63,10 @@ const verifyRefreshToken = async (refreshToken) => {
 
 const revokeRefreshToken = async (refreshToken) => {
   try {
-    await db.query(
-      'UPDATE refresh_tokens SET is_revoked = true WHERE token = $1',
-      [refreshToken]
-    );
+    await prisma.refreshToken.updateMany({
+      where: { token: refreshToken },
+      data: { isRevoked: true }
+    });
   } catch (error) {
     throw new Error('Failed to revoke refresh token');
   }
@@ -68,10 +74,15 @@ const revokeRefreshToken = async (refreshToken) => {
 
 const revokeAllUserTokens = async (userId) => {
   try {
-    await db.query(
-      'UPDATE refresh_tokens SET is_revoked = true WHERE user_id = $1 AND is_revoked = false',
-      [userId]
-    );
+    await prisma.refreshToken.updateMany({
+      where: {
+        userId,
+        isRevoked: false
+      },
+      data: {
+        isRevoked: true
+      }
+    });
   } catch (error) {
     throw new Error('Failed to revoke user tokens');
   }
@@ -79,9 +90,14 @@ const revokeAllUserTokens = async (userId) => {
 
 const cleanupExpiredTokens = async () => {
   try {
-    await db.query(
-      'DELETE FROM refresh_tokens WHERE expires_at < NOW() OR is_revoked = true'
-    );
+    await prisma.refreshToken.deleteMany({
+      where: {
+        OR: [
+          { expiresAt: { lt: new Date() } },
+          { isRevoked: true }
+        ]
+      }
+    });
   } catch (error) {
     console.error('Failed to cleanup expired tokens:', error);
   }
