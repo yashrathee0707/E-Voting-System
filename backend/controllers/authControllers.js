@@ -4,13 +4,15 @@ const {
   generateAccessToken,
   generateRefreshToken,
   storeRefreshToken,
+  verifyRefreshToken,
+  revokeRefreshToken,
 } = require('../utils/jwt');
 
 const prisma = new PrismaClient();
 
 const register = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, firstName, lastName, phone } = req.body;
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -24,13 +26,16 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        passwordHash: hashedPassword,
-        role: 'VOTER',
-      },
-    });
+    data: {
+      email,
+      firstname: firstName,
+      lastname: lastName,
+      phone: phone,
+      passwordHash: hashedPassword,
+      role: 'VOTER',
+  },
+});
+
 
     const accessToken = generateAccessToken({ userId: user.id, email: user.email });
     const refreshToken = generateRefreshToken();
@@ -44,7 +49,9 @@ const register = async (req, res) => {
         user: {
           id: user.id,
           email: user.email,
-          name: user.name,
+          firstName: user.firstname,
+          lastName: user.lastname,
+          phone: user.phone,
           createdAt: user.createdAt,
         },
         accessToken,
@@ -92,7 +99,7 @@ const login = async (req, res) => {
         user: {
           id: user.id,
           email: user.email,
-          name: user.name,
+          name: user.firstname + ' ' + user.lastname,
         },
         accessToken,
         refreshToken,
@@ -127,16 +134,17 @@ const refreshToken = async (req, res) => {
 
     // Generate new access token
     const accessToken = generateAccessToken({
-      userId: tokenData.user_id,
-      email: tokenData.email
+      userId: tokenData.user.id,
+      email: tokenData.user.email
     });
+
 
     // Generate new refresh token
     const newRefreshToken = generateRefreshToken();
     
     // Revoke old refresh token and store new one
     await revokeRefreshToken(token);
-    await storeRefreshToken(tokenData.user_id, newRefreshToken);
+    await storeRefreshToken(tokenData.user.id, newRefreshToken);
 
     res.json({
       success: true,
@@ -207,8 +215,8 @@ const getProfile = async (req, res) => {
         user: {
           id: user.id,
           email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name
+          firstName: user.firstname,
+          lastName: user.lastname
         }
       }
     });

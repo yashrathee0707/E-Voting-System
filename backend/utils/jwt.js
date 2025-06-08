@@ -34,32 +34,32 @@ const storeRefreshToken = async (userId, refreshToken) => {
 
 const verifyRefreshToken = async (refreshToken) => {
   try {
+    // No JWT verification here because refreshToken is a random string
+
     const tokenRecord = await prisma.refreshToken.findFirst({
       where: {
         token: refreshToken,
         expiresAt: {
-          gt: new Date()
+          gt: new Date(),
         },
-        isRevoked: false
       },
       include: {
-        user: true
-      }
+        user: true,
+      },
     });
 
     if (!tokenRecord || !tokenRecord.user || !tokenRecord.user.verified) {
-      await revokeRefreshToken(refreshToken); // optional: auto revoke bad tokens
+      await revokeRefreshToken(refreshToken); // optional cleanup
       return null;
     }
 
-    return {
-      ...tokenRecord,
-      user: tokenRecord.user
-    };
+    return tokenRecord; // return the record with user info
   } catch (error) {
+    console.error('verifyRefreshToken failed:', error.message);
     throw new Error('Failed to verify refresh token');
   }
 };
+
 
 const revokeRefreshToken = async (refreshToken) => {
   try {
