@@ -18,6 +18,7 @@ model User {
   verified     Boolean        @default(true)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  test         Boolean        @default(false)
 
   votes        Vote[]
   auditLogs    AuditLog[]

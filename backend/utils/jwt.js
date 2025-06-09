@@ -6,8 +6,8 @@ const prisma = new PrismaClient();
 const generateAccessToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '15m',
-    issuer: 'your-app-name',
-    audience: 'your-app-users'
+    issuer: 'E-Voting System',
+    audience: 'Voters'
   });
 };
 
@@ -34,7 +34,6 @@ const storeRefreshToken = async (userId, refreshToken) => {
 
 const verifyRefreshToken = async (refreshToken) => {
   try {
-    // No JWT verification here because refreshToken is a random string
 
     const tokenRecord = await prisma.refreshToken.findFirst({
       where: {
