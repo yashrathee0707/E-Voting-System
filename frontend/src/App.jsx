@@ -5,6 +5,8 @@ import Signup from './pages/SignUp';
 import Home from './pages/Home';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
+import VoteStatus from './pages/VoteStatus';
+
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path='/about' element={<About />} />
         <Route path="*" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/vote-status" element={<VoteStatus />} />
+        {/* Add more routes as needed */}
 
       </Routes>
     </Router>

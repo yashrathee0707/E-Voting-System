@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+require('dotenv').config();
+
 
 const generateAccessToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '15m',
-    issuer: 'E-Voting System',
-    audience: 'Voters'
+    expiresIn:'15m',
   });
 };
 
