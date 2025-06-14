@@ -6,6 +6,8 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth');
 const { PrismaClient } = require('@prisma/client');
+const electionRoutes = require('./routes/electionRoutes');
+
 
 const app = express();
 const prisma = new PrismaClient();
@@ -26,6 +28,9 @@ app.get('/', (req, res) => {
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Election routes
+app.use('/api/elections', electionRoutes);
 
 // Handle 404
 app.use((req, res) => {

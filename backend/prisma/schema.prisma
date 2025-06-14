@@ -46,6 +46,7 @@ model Election {
   endTime     DateTime
   isPublished Boolean     @default(false)
   createdAt   DateTime    @default(now())
+  status      VoteStatus @default(SCHEDULED)
 
   candidates  Candidate[]
   votes       Vote[]
@@ -97,4 +98,11 @@ model OTP {
 enum Role {
   ADMIN
   VOTER
+}
+
+enum VoteStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
 }
