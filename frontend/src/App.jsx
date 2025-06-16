@@ -17,10 +17,6 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path='/about' element={<About />} />
         <Route path="*" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/vote-status" element={<VoteStatus />} />
-        {/* Add more routes as needed */}
-
       </Routes>
     </Router>
   );
