@@ -9,44 +9,35 @@ import VoteStatus from './pages/VoteStatus';
 import CreateVoting from './pages/CreateVoting';
 import RescheduleVoting from './pages/RescheduleVoting';
 import CancelVoting from './pages/CancelVoting';
+// import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
+import DashboardLayout from './components/DashboardLayout';
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/" element={<Home />} />
-        <Route path='/about' element={<About />} />
-        <Route path="/dashboard" element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        } />
-        <Route path="/vote-status" element={
-          <PrivateRoute>
-            <VoteStatus />
-          </PrivateRoute>
-        } />
-        <Route path="/create-voting" element={
-          <PrivateRoute>
-            <CreateVoting />
-          </PrivateRoute>
-        } />
-        <Route path="/reschedule-voting" element={
-          <PrivateRoute>
-            <RescheduleVoting />
-          </PrivateRoute>
-        } />
-        <Route path="/cancel-voting" element={
-          <PrivateRoute>
-            <CancelVoting />
-          </PrivateRoute>
-        } />
+
+        {/* Protected Routes wrapped inside DashboardLayout */}
+        <Route element={<PrivateRoute><DashboardLayout /></PrivateRoute>}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/vote-status" element={<VoteStatus />} />
+          <Route path="/create-voting" element={<CreateVoting />} />
+          <Route path="/reschedule-voting" element={<RescheduleVoting />} />
+          <Route path="/cancel-voting" element={<CancelVoting />} />
+          {/* <Route path="/profile" element={<Profile />} /> */}
+        </Route>
+
+        {/* Catch-all */}
         <Route path="*" element={<Home />} />
       </Routes>
     </Router>
   );
 }
+
 export default App;
