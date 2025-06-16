@@ -17,7 +17,7 @@ const generateRefreshToken = () => {
 
 const storeRefreshToken = async (userId, refreshToken) => {
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
+  expiresAt.setDate(expiresAt.getDate() + 7); 
 
   try {
     await prisma.refreshToken.create({
