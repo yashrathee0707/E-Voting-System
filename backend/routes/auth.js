@@ -12,7 +12,8 @@ const {
   refreshToken,
   logout,
   logoutAll,
-  getProfile
+  getProfile,
+  currentUser
 } = require('../controllers/authControllers');
 
 const router = express.Router();
@@ -59,6 +60,8 @@ router.post('/refresh-token',
 );
 
 router.post('/logout', logout);
+
+router.get('/current-user', authenticateToken, currentUser);
 
 router.get('/profile', authenticateToken, getProfile);
 router.post('/logout-all', authenticateToken, logoutAll);

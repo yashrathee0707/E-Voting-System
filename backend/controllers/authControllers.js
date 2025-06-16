@@ -205,6 +205,22 @@ const logoutAll = async (req, res) => {
   }
 };
 
+const currentUser = (req, res) => {
+  try {
+    const { firstname, lastname, email } = req.user;
+
+    res.json({
+      firstname,
+      lastname,
+      email
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching user data' });
+  }
+};
+
+
+
 const getProfile = async (req, res) => {
   try {
     const user = req.user;
@@ -236,5 +252,6 @@ module.exports = {
   refreshToken,
   logout,
   logoutAll,
-  getProfile
+  getProfile,
+  currentUser
 };
