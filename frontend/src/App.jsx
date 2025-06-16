@@ -9,7 +9,7 @@ import VoteStatus from './pages/VoteStatus';
 import CreateVoting from './pages/CreateVoting';
 import RescheduleVoting from './pages/RescheduleVoting';
 import CancelVoting from './pages/CancelVoting';
-// import Profile from './pages/Profile';
+import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
 import DashboardLayout from './components/DashboardLayout';
 
@@ -30,7 +30,7 @@ function App() {
           <Route path="/create-voting" element={<CreateVoting />} />
           <Route path="/reschedule-voting" element={<RescheduleVoting />} />
           <Route path="/cancel-voting" element={<CancelVoting />} />
-          {/* <Route path="/profile" element={<Profile />} /> */}
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
         {/* Catch-all */}
