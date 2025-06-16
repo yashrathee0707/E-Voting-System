@@ -13,7 +13,7 @@ const CreateVoting = () => {
   const [error, setError] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
 
-  const handleChange = (e) => {
+  const handleChange = (e) => { 
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -50,7 +50,6 @@ const CreateVoting = () => {
     }
 
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       alert("Election created successfully!");
     } catch (err) {
@@ -84,34 +83,68 @@ const CreateVoting = () => {
     }
   };
 
+  const handleStepClick = (stepId) => {
+    if (stepId === 1) {
+      setCurrentStep(1);
+    } else if (stepId === 2) {
+      if (isStepComplete(1)) {
+        setCurrentStep(2);
+      } else {
+        setError("Please complete Basic Information first.");
+      }
+    } else if (stepId === 3) {
+      if (isStepComplete(1) && isStepComplete(2)) {
+        setCurrentStep(3);
+      } else {
+        setError("Please complete Basic Information and Schedule first.");
+      }
+    }
+  };
+
+  const handleNextStep = () => {
+    setError(""); // Clear previous errors on next
+    if (currentStep === 1 && !isStepComplete(1)) {
+      setError("Please enter the Election Title.");
+      return;
+    }
+    if (currentStep === 2 && !isStepComplete(2)) {
+      setError("Please select both Start and End Times.");
+      return;
+    }
+    setCurrentStep(currentStep + 1);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Create New Voting Event</h1>
           <p className="text-gray-600">Set up a secure and transparent election in just a few steps</p>
         </div>
 
-        {/* Progress Steps */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center space-x-4">
             {steps.map((step, index) => {
               const Icon = step.icon;
               const isActive = currentStep === step.id;
               const isCompleted = isStepComplete(step.id);
+              const isClickable = (step.id === 1) || 
+                                  (step.id === 2 && isStepComplete(1)) || 
+                                  (step.id === 3 && isStepComplete(1) && isStepComplete(2));
               
               return (
                 <div key={step.id} className="flex items-center">
                   <div
-                    className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 cursor-pointer ${
+                    className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
+                      isClickable ? "cursor-pointer" : "cursor-not-allowed opacity-60"
+                    } ${
                       isCompleted
                         ? "bg-green-500 border-green-500 text-white"
                         : isActive
                         ? "bg-indigo-600 border-indigo-600 text-white"
                         : "bg-white border-gray-300 text-gray-400"
                     }`}
-                    onClick={() => setCurrentStep(step.id)}
+                    onClick={() => isClickable && handleStepClick(step.id)}
                   >
                     {isCompleted ? <CheckCircle size={20} /> : <Icon size={20} />}
                   </div>
@@ -129,7 +162,6 @@ const CreateVoting = () => {
           </div>
         </div>
 
-        {/* Main Form Card */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="p-8">
             {error && (
@@ -141,7 +173,6 @@ const CreateVoting = () => {
               </div>
             )}
 
-            {/* Step 1: Basic Information */}
             {currentStep === 1 && (
               <div className="space-y-6 animate-fadeIn">
                 <div className="text-center mb-6">
@@ -186,7 +217,6 @@ const CreateVoting = () => {
               </div>
             )}
 
-            {/* Step 2: Schedule */}
             {currentStep === 2 && (
               <div className="space-y-6 animate-fadeIn">
                 <div className="text-center mb-6">
@@ -241,7 +271,6 @@ const CreateVoting = () => {
               </div>
             )}
 
-            {/* Step 3: Candidates */}
             {currentStep === 3 && (
               <div className="space-y-6 animate-fadeIn">
                 <div className="text-center mb-6">
@@ -300,7 +329,6 @@ const CreateVoting = () => {
               </div>
             )}
 
-            {/* Navigation Buttons */}
             <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
               <button
                 type="button"
@@ -319,7 +347,7 @@ const CreateVoting = () => {
                 {currentStep < 3 ? (
                   <button
                     type="button"
-                    onClick={() => setCurrentStep(currentStep + 1)}
+                    onClick={handleNextStep}
                     className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors duration-200 flex items-center space-x-2"
                   >
                     <span>Next</span>
@@ -352,7 +380,6 @@ const CreateVoting = () => {
           </div>
         </div>
 
-        {/* Summary Card */}
         {currentStep === 3 && form.title && (
           <div className="mt-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Election Summary</h3>
