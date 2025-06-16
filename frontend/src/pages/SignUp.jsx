@@ -17,10 +17,8 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Submitting:', formData); // debug log
-
     try {
-      const res = await fetch('http://localhost:3000/api/auth/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,7 +27,6 @@ const Signup = () => {
       });
 
       const data = await res.json();
-      console.log('Response:', data);
 
       if (res.ok) {
         alert('Registered successfully!');

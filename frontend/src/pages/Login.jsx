@@ -15,22 +15,19 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Logging in with:', formData); // debug
-
     try {
-      const res = await fetch('http://localhost:3000/api/auth/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
 
       const data = await res.json();
-      console.log('Response:', data);
 
       if (res.ok) {
         alert('Login successful!');
-        localStorage.setItem('accessToken', data.accessToken); // optional: save token
-        navigate('/'); // redirect to homepage or dashboard
+        localStorage.setItem('accessToken', data.accessToken); 
+        navigate('/dashboard');
       } else {
         alert(data.message || 'Login failed');
       }

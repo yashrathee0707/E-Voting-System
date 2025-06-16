@@ -60,7 +60,6 @@ router.post('/refresh-token',
 
 router.post('/logout', logout);
 
-// Protected routes
 router.get('/profile', authenticateToken, getProfile);
 router.post('/logout-all', authenticateToken, logoutAll);
 

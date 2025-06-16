@@ -6,7 +6,10 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import VoteStatus from './pages/VoteStatus';
-
+import CreateVoting from './pages/CreateVoting';
+import RescheduleVoting from './pages/RescheduleVoting';
+import CancelVoting from './pages/CancelVoting';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
@@ -16,14 +19,34 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/" element={<Home />} />
         <Route path='/about' element={<About />} />
+        <Route path="/dashboard" element={
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        } />
+        <Route path="/vote-status" element={
+          <PrivateRoute>
+            <VoteStatus />
+          </PrivateRoute>
+        } />
+        <Route path="/create-voting" element={
+          <PrivateRoute>
+            <CreateVoting />
+          </PrivateRoute>
+        } />
+        <Route path="/reschedule-voting" element={
+          <PrivateRoute>
+            <RescheduleVoting />
+          </PrivateRoute>
+        } />
+        <Route path="/cancel-voting" element={
+          <PrivateRoute>
+            <CancelVoting />
+          </PrivateRoute>
+        } />
         <Route path="*" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/vote-status" element={<VoteStatus />} />
-        {/* Add more routes as needed */}
-
       </Routes>
     </Router>
   );
 }
-
 export default App;
