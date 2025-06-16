@@ -13,10 +13,9 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setError(''); // Clear error when user starts typing
+    setError('');
   };
 
   const handleSubmit = async (e) => {
@@ -25,15 +24,28 @@ const Login = () => {
     setError('');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-      alert('Login successful!');
-      navigate('/dashboard');
+      const data = await response.json();
 
+      if (response.ok) {
+        if (data.data && data.data.accessToken) {
+          localStorage.setItem('accessToken', data.data.accessToken);
+          navigate('/dashboard');
+        } else {
+          setError('Login successful, but no access token received.');
+        }
+      } else {
+        setError(data.message || 'Login failed. Please check your credentials.');
+      }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Invalid email or password. Please try again.');
+      setError('Network error. Could not connect to the server.');
     } finally {
       setLoading(false);
     }
@@ -41,7 +53,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-800 flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10"></div>
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
@@ -49,7 +60,6 @@ const Login = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-4">
             <Shield className="w-8 h-8 text-white" />
@@ -58,7 +68,6 @@ const Login = () => {
           <p className="text-indigo-200">Sign in to your account to continue</p>
         </div>
 
-        {/* Login Card */}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-2xl">
           {error && (
             <div className="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl">
@@ -70,7 +79,6 @@ const Login = () => {
           )}
 
           <div className="space-y-6">
-            {/* Email Field */}
             <div className="group">
               <label className="block text-sm font-medium text-white/80 mb-2">
                 Email Address
@@ -91,7 +99,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Password Field */}
             <div className="group">
               <label className="block text-sm font-medium text-white/80 mb-2">
                 Password
@@ -119,7 +126,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
               onClick={handleSubmit}
@@ -140,15 +146,14 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Footer Links */}
           <div className="mt-8 space-y-4 text-center">
-            <a 
-              href="/forgot-password" 
+            <a
+              href="/forgot-password"
               className="inline-block text-white/70 hover:text-white transition-colors text-sm font-medium"
             >
               Forgot your password?
             </a>
-            
+
             <div className="flex items-center justify-center">
               <div className="h-px bg-white/20 flex-1"></div>
               <span className="px-4 text-white/50 text-sm">or</span>
@@ -157,8 +162,8 @@ const Login = () => {
 
             <p className="text-white/70 text-sm">
               Don't have an account?{' '}
-              <a 
-                href="/signup" 
+              <a
+                href="/signup"
                 className="text-white font-semibold hover:text-white/80 transition-colors"
               >
                 Create Account
@@ -167,7 +172,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Security Notice */}
         <div className="mt-6 text-center">
           <p className="text-indigo-200/60 text-xs">
             Protected by end-to-end encryption
