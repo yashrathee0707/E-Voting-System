@@ -32,31 +32,60 @@ const CreateVoting = () => {
     setForm({ ...form, candidates: updated });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    const validCandidates = form.candidates.map(c => c.trim()).filter(Boolean);
-    if (validCandidates.length < 2) {
-      setError("Please enter at least two candidate names.");
-      setLoading(false);
-      return;
-    }
-    if (form.endTime <= form.startTime) {
-      setError("End time must be after start time.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      alert("Election created successfully!");
-    } catch (err) {
-      setError("Network error. Please try again.");
-    }
+  const validCandidates = form.candidates.map(c => c.trim()).filter(Boolean);
+  if (validCandidates.length < 2) {
+    setError("Please enter at least two candidate names.");
     setLoading(false);
-  };
+    return;
+  }
+  if (form.endTime <= form.startTime) {
+    setError("End time must be after start time.");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    // Get the auth token from localStorage or wherever you store it
+    const accessToken = localStorage.getItem('accessToken'); // Adjust this based on how you store tokens
+    
+    const response = await fetch('/api/elections/create', { // Adjust the URL to match your backend endpoint
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer " + accessToken,
+      },
+      body: JSON.stringify({
+        title: form.title,
+        description: form.description,
+        startTime: form.startTime,
+        endTime: form.endTime,
+        candidates: validCandidates
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      alert("Election created successfully!");
+      // Optionally redirect to elections list or reset form
+      // window.location.href = '/elections';
+      // or reset the form:
+      // setForm({ title: "", description: "", startTime: "", endTime: "", candidates: [""] });
+      // setCurrentStep(1);
+    } else {
+      setError(data.message || "Failed to create election. Please try again.");
+    }
+  } catch (err) {
+    console.error('Error creating election:', err);
+    setError("Network error. Please check your connection and try again.");
+  }
+  setLoading(false);
+};
 
   const getNowLocal = () => {
     const now = new Date();

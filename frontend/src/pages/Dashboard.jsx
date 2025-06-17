@@ -16,14 +16,36 @@ import { Loader, AlertCircle, Info } from 'lucide-react';
 const Dashboard = () => {
   const [elections, setElections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const user = {
-    name: "Ajay Gupta",
-    email: "info@eibcvoting.com",
-    ibbi: "IBBI1234567",
-  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return setError('No token found');
+
+      try {
+        const res = await fetch('/api/auth/current-user', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!res.ok) throw new Error('Failed to fetch user data');
+
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error(err);
+        setError('Error loading user profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
 
   const fetchElections = useCallback(async () => {
     setLoading(true);
@@ -138,7 +160,7 @@ const Dashboard = () => {
                 <FaCheckCircle className="text-blue-500 mr-2" /> Your Profile
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
-                <div><strong className="font-medium text-gray-600">Name:</strong> {user.name}</div>
+                <div><strong className="font-medium text-gray-600">Name:</strong> {user ? `${user.firstname} ${user.lastname}` : '...'}</div>
                 <div><strong className="font-medium text-gray-600">Email:</strong> {user.email}</div>
                 <div><strong className="font-medium text-gray-600">IBBI No:</strong> {user.ibbi}</div>
               </div>
