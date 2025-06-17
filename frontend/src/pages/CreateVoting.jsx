@@ -102,14 +102,14 @@ const CreateVoting = () => {
   };
 
   const handleNextStep = () => {
-    setError(""); // Clear previous errors on next
+    setError(""); 
     if (currentStep === 1 && !isStepComplete(1)) {
       setError("Please enter the Election Title.");
       return;
     }
     if (currentStep === 2 && !isStepComplete(2)) {
       setError("Please select both Start and End Times.");
-      return;
+      return;x``
     }
     setCurrentStep(currentStep + 1);
   };
